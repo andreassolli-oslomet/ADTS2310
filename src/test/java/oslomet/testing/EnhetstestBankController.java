@@ -11,6 +11,7 @@ import oslomet.testing.DAL.AdminRepository;
 import oslomet.testing.DAL.BankRepository;
 import oslomet.testing.Models.Konto;
 import oslomet.testing.Models.Kunde;
+import oslomet.testing.Models.Transaksjon;
 import oslomet.testing.Sikkerhet.Sikkerhet;
 
 import java.util.ArrayList;
@@ -28,25 +29,15 @@ public class EnhetstestBankController {
     // denne skal testes
     private BankController bankController;
 
-    @InjectMocks
-    // denne skal testes
-    private AdminKundeController adminKundeController;
 
     @Mock
     // denne skal Mock'es
     private BankRepository repository;
 
-    @Mock
-    // denne skal Mock'es
-    private AdminRepository adminRepository;
 
     @Mock
     // denne skal Mock'es
     private Sikkerhet sjekk;
-
-    //Controller fullført:
-    //AdminKundeController
-    //
 
 
     @Test
@@ -117,136 +108,6 @@ public class EnhetstestBankController {
     }
 
     @Test
-    public void slettKunde_IkkeLoggetInn() {
-
-        String personNummer = "105010123456";
-
-        when(sjekk.loggetInn()).thenReturn(null);
-
-        String resultat = adminKundeController.slett(personNummer);
-
-        assertEquals("Ikke logget inn", resultat);
-
-    }
-
-    @Test
-    public void slettKunde_LoggetInn() {
-
-        String personNummer = "105010123456";
-        String slettetKunde = "";
-
-        when(sjekk.loggetInn()).thenReturn("105010123456");
-
-        when(adminRepository.slettKunde(anyString())).thenReturn(slettetKunde);
-
-        String resultat = adminKundeController.slett(personNummer);
-
-        assertEquals(resultat, slettetKunde);
-    }
-
-    @Test
-    public void endreKunde_IkkeLoggetInn() {
-
-        Kunde enKunde = new Kunde("01010110523",
-                "Lene", "Jensen", "Askerveien 22", "3270",
-                "Asker", "22224444", "HeiHei");
-
-        when(sjekk.loggetInn()).thenReturn(null);
-
-        String resultat = adminKundeController.endre(enKunde);
-
-        assertEquals("Ikke logget inn", resultat);
-
-    }
-
-    @Test
-    public void endreKunde_LoggetInn() {
-
-        Kunde enKunde = new Kunde("01010110523",
-                "Lene", "Jensen", "Askerveien 22", "3270",
-                "Asker", "22224444", "HeiHei");
-
-        String endretKunde = "";
-
-        when(sjekk.loggetInn()).thenReturn("105010123456");
-
-        when(adminRepository.endreKundeInfo(enKunde)).thenReturn(endretKunde);
-
-        String resultat = adminKundeController.endre(enKunde);
-
-        assertEquals(resultat, endretKunde);
-    }
-
-    @Test
-    public void lagreKunde_IkkeLoggetInn() {
-
-        Kunde enKunde = new Kunde("01010110523",
-                "Lene", "Jensen", "Askerveien 22", "3270",
-                "Asker", "22224444", "HeiHei");
-
-        when(sjekk.loggetInn()).thenReturn(null);
-
-        String resultat = adminKundeController.lagreKunde(enKunde);
-
-        assertEquals("Ikke logget inn", resultat);
-
-    }
-
-    @Test
-    public void lagreKunde_LoggetInn() {
-
-        Kunde enKunde = new Kunde("01010110523",
-                "Lene", "Jensen", "Askerveien 22", "3270",
-                "Asker", "22224444", "HeiHei");
-
-        String endretKunde = "";
-
-        when(sjekk.loggetInn()).thenReturn("105010123456");
-
-        when(adminRepository.registrerKunde(enKunde)).thenReturn(endretKunde);
-
-        String resultat = adminKundeController.lagreKunde(enKunde);
-
-        assertEquals(resultat, endretKunde);
-    }
-
-    @Test
-    public void hentKunder_IkkeLoggetInn() {
-
-        when(sjekk.loggetInn()).thenReturn(null);
-
-        //act
-        List<Kunde> resultat = adminKundeController.hentAlle();
-
-        // assert
-        assertNull(resultat);
-
-    }
-
-    @Test
-    public void hentKunder_LoggetInn() {
-
-        List<Kunde> kunder = new ArrayList<>();
-        Kunde kunde1 = new Kunde("01010110523",
-                "Lene", "Jensen", "Askerveien 22", "3270",
-                "Asker", "22224444", "HeiHei");
-        Kunde kunde2 = new Kunde("12345678901",
-                "Per", "Hansen", "Osloveien 82", "1234",
-                "Oslo", "12345678", "HeiHei");
-
-        kunder.add(kunde1);
-        kunder.add(kunde2);
-
-        when(sjekk.loggetInn()).thenReturn("105010123456");
-
-        when(adminRepository.hentAlleKunder()).thenReturn(kunder);
-
-        List<Kunde> resultat = adminKundeController.hentAlle();
-
-        assertEquals(resultat, kunder);
-    }
-
-    @Test
     public void hentTransaksjoner_IkkeLoggetInn() {
 
         String kontoNr = "105010123456";
@@ -269,15 +130,169 @@ public class EnhetstestBankController {
         String kontoNr = "105010123456";
         String fraDato = "2015-03-15";
         String tilDato = "2015-03-20";
+        Konto konto = new Konto("105010123456", "01010110523",
+                720, "Lønnskonto", "NOK", null);
+
+        when(sjekk.loggetInn()).thenReturn("105010123456");
+        when(repository.hentTransaksjoner(kontoNr, fraDato, tilDato)).thenReturn(konto);
+
+        Konto resultat = bankController.hentTransaksjoner(kontoNr, fraDato, tilDato);
+
+        assertEquals(konto, resultat);
+    }
+
+    @Test
+    public void hentSaldi_IkkeLoggetInn() {
+
+        when(sjekk.loggetInn()).thenReturn(null);
+
+        //act
+        List<Konto> resultat = bankController.hentSaldi();
+
+        // assert
+        assertNull(resultat);
+    }
+
+    @Test
+    public void hentSaldi_LoggetInn() {
+
+        List<Konto> konti = new ArrayList<>();
+        Konto konto1 = new Konto("105010123456", "01010110523",
+                720, "Lønnskonto", "NOK", null);
+        Konto konto2 = new Konto("105010123456", "12345678901",
+                1000, "Lønnskonto", "NOK", null);
+        konti.add(konto1);
+        konti.add(konto2);
+
+        when(sjekk.loggetInn()).thenReturn("01010110523");
+        when(repository.hentSaldi(anyString())).thenReturn(konti);
+
+        // act
+        List<Konto> resultat = bankController.hentSaldi();
+
+        // assert
+        assertEquals(konti, resultat);
+    }
+
+    @Test
+    public void registrerBetaling_IkkeLoggetInn() {
+        Transaksjon transaksjon = new Transaksjon(1, "105010123456", 100,
+                "2015-03-15", "12345678901", "Betaling", "OK");
+
+        when(sjekk.loggetInn()).thenReturn(null);
+
+        //act
+        String resultat = bankController.registrerBetaling(transaksjon);
+
+        assertNull(resultat);
+
+    }
+
+    @Test
+    public void registrerBetaling_LoggetInn(){
+        Transaksjon transaksjon = new Transaksjon(1, "105010123456", 100,
+                "2015-03-15", "12345678901", "Betaling", "OK");
 
         when(sjekk.loggetInn()).thenReturn("105010123456");
 
-        Konto resultat = repository.hentTransaksjoner(kontoNr, fraDato, tilDato);
+        when(repository.registrerBetaling(transaksjon)).thenReturn("OK");
 
-        Konto konto = bankController.hentTransaksjoner(kontoNr, fraDato, tilDato);
+        String resultat = bankController.registrerBetaling(transaksjon);
 
-        assertEquals(resultat, konto);
+        assertEquals("OK", resultat);
+
     }
 
+    @Test
+    public void hentBetalinger_IkkeLoggetInn() {
+
+        when(sjekk.loggetInn()).thenReturn(null);
+
+        //act
+        List<Transaksjon> resultat = bankController.hentBetalinger();
+
+        // assert
+        assertNull(resultat);
+    }
+
+    @Test
+    public void hentBetalinger_LoggetInn(){
+
+        List<Transaksjon> transaksjoner = new ArrayList<>();
+        Transaksjon transaksjon1 = new Transaksjon(1, "20102012345", 100.5, "2015-03-15", "Fjordkraft", "1", "105010123456");
+
+        Transaksjon transaksjon2 = new Transaksjon(3, "20102012345", -1400.7, "2015-03-13", "Innbetaling", "1", "55551166677");
+
+        transaksjoner.add(transaksjon1);
+        transaksjoner.add(transaksjon2);
+
+        when(sjekk.loggetInn()).thenReturn("105010123456");
+        when(repository.hentBetalinger(anyString())).thenReturn(transaksjoner);
+
+        List<Transaksjon> resultat = bankController.hentBetalinger();
+
+        assertEquals(transaksjoner, resultat);
+    }
+
+    @Test
+    public void utforBetaling_IkkeLoggetInn() {
+
+        when(sjekk.loggetInn()).thenReturn(null);
+
+        //act
+        List<Transaksjon> resultat = bankController.utforBetaling(1);
+
+        // assert
+        assertNull(resultat);
+    }
+
+    @Test
+    public void utforBetaling_LoggetInn() {
+        List<Transaksjon> transaksjoner = new ArrayList<>();
+        Transaksjon transaksjon1 = new Transaksjon(1, "20102012345", 100.5, "2015-03-15", "Fjordkraft", "1", "105010123456");
+
+        Transaksjon transaksjon2 = new Transaksjon(3, "20102012345", -1400.7, "2015-03-13", "Innbetaling", "1", "55551166677");
+
+        transaksjoner.add(transaksjon1);
+        transaksjoner.add(transaksjon2);
+
+        when(sjekk.loggetInn()).thenReturn("105010123456");
+        when(repository.utforBetaling(1)).thenReturn("OK");
+        when(repository.hentBetalinger(anyString())).thenReturn(transaksjoner);
+
+        List<Transaksjon> resultat = bankController.utforBetaling(1);
+
+        assertEquals(transaksjoner, resultat);
+
+    }
+
+    @Test
+    public void endreKundeInfo_IkkeLoggetInn() {
+        Kunde enKunde = new Kunde("01010110523",
+                "Lene", "Jensen", "Askerveien 22", "3270",
+                "Asker", "22224444", "HeiHei");
+
+        when(sjekk.loggetInn()).thenReturn(null);
+
+        //act
+        String resultat = bankController.endre(enKunde);
+
+        // assert
+        assertNull(resultat);
+    }
+
+    @Test
+    public void endreKundeInfo_LoggetInn() {
+        Kunde enKunde = new Kunde(null,
+                "Lene", "Jensen", "Askerveien 22", "3270",
+                "Asker", "22224444", "HeiHei");
+
+        when(sjekk.loggetInn()).thenReturn("105010123456");
+        when(repository.endreKundeInfo(enKunde)).thenReturn("OK");
+
+        String resultat = bankController.endre(enKunde);
+
+        assertEquals("OK", resultat);
+    }
 }
 
