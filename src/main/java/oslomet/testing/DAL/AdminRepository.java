@@ -69,7 +69,7 @@ public class AdminRepository {
             etPostSted = db.queryForObject(sql, Integer.class, kunde.getPostnr());
         }
         catch(Exception e){
-            return "Feil";
+            return "Feil i select poststed";
         }
         if(etPostSted == 0)
         {
@@ -79,7 +79,7 @@ public class AdminRepository {
                 db.update(sql, kunde.getPostnr(), kunde.getPoststed());
             }
             catch(Exception e){
-                return "Feil";
+                return "Feil i insert poststed" + e;
             }
         }
         try{
@@ -89,7 +89,7 @@ public class AdminRepository {
                     kunde.getAdresse(),kunde.getPostnr(),kunde.getTelefonnr(),kunde.getPassord());
         }
         catch(Exception e){
-            return "Feil";
+            return "Feil i insert kunde" + e;
         }
         return "OK";
     }
