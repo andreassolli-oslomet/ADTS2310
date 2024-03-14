@@ -110,14 +110,14 @@ public class AdminRepository {
             String sql = "Select count(*) from Kunde Where Personnummer = ?";
             int funnetPersonnummer  = db.queryForObject(sql,Integer.class,konto.getPersonnummer());
             if (funnetPersonnummer == 0){
-                return "Feil";
+                return "Feil i personnummer";
             }
             sql = "Insert into Konto (Personnummer, Kontonummer, Saldo, Type, Valuta) Values (?,?,?,?,?)";
             db.update(sql,konto.getPersonnummer(),konto.getKontonummer(),konto.getSaldo(),konto.getType(),
                     konto.getValuta());
         }
         catch(Exception e){
-            return "Feil";
+            return "Feil i insert konto";
         }
         return "OK";
     }
